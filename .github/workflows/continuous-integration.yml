@@ -1,0 +1,62 @@
+name: CI
+on:
+  push:
+    branches:
+      - "main"
+      - "release/*"
+    paths-ignore:
+    - 'docs/**'
+  pull_request:
+    paths-ignore:
+    - 'docs/**'
+jobs:
+  build:
+    name: Build amd Test
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        configuration: [debug, release]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v2
+      - name: Try get cached dependencies
+        uses: actions/cache@v3
+        with:
+          path: ${{ github.workspace }}/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+      - name: Validate dependencies
+        run: dotnet restore --locked-mode --packages ${{ github.workspace }}/.nuget/packages
+      - name: Build
+        run: dotnet msbuild -p:Configuration=${{ matrix.configuration }} -p:ContinuousIntegrationBuild=true -p:TreatWarningsAsErrors=true -graph -isolate -bl:artifacts/log/build.binlog
+      - name: Pack
+        run: dotnet pack --nologo --configuration ${{ matrix.configuration }} --output artifacts/packages
+      - name: Test
+        uses: zyborg/dotnet-tests-report@v1
+        with:
+          project_path: tests/Move.Project.Tests.csproj
+          report_name: ${{ matrix.os }}_${{ matrix.configuration }}_test_results
+          report_title: ${{ matrix.os }} ${{ matrix.configuration }} Test Results
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          no_build: true
+          no_restore: true
+          msbuild_configuration: ${{ matrix.configuration }}
+          set_check_status_from_test_outcome: true
+          fail_build_on_failed_tests: true
+          extra_test_parameters: "--blame-crash --blame-hang --blame-hang-timeout 4m"
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ matrix.os }}_${{ matrix.configuration }}
+          path: |
+            ./artifacts/bin/**/*
+            ./artifacts/log/**/*
+            ./artifacts/packages/**/*
+            ./artifacts/test_results/**/*
+          if-no-files-found: error

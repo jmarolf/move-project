@@ -2,8 +2,10 @@
 	// See https://go.microsoft.com/fwlink/?LinkId=827846
 	// for the documentation about the extensions.json format
 	"recommendations": [
-        "ms-dotnettools.csharp",
+        "EditorConfig.EditorConfig",
         "formulahendry.dotnet-test-explorer",
-        "EditorConfig.EditorConfig"
+        "ms-dotnettools.csharp",
+        "pflannery.vscode-versionlens",
+        "tintoy.msbuild-project-tools"
 	]
 }

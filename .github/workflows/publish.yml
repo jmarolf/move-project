@@ -1,0 +1,56 @@
+name: Publish
+on:
+  push:
+    branches:
+      - "main"
+      - "release/*"
+jobs:
+  build:
+    name: Build Release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v2
+      - name: Try get cached dependencies
+        uses: actions/cache@v3
+        with:
+          path: ${{ github.workspace }}/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+      - name: Validate dependencies
+        run: dotnet restore --locked-mode --packages ${{ github.workspace }}/.nuget/packages
+      - name: Build
+        run: dotnet msbuild -p:Configuration=Release -p:PublicRelease=false -p:ContinuousIntegrationBuild=true -p:TreatWarningsAsErrors=true -graph -isolate -bl:artifacts/log/build.binlog
+      - name: Pack
+        run: dotnet pack --no-build --no-restore --nologo --configuration Release --output artifacts/packages
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: output
+          path: |
+            ./artifacts/bin/**/*
+            ./artifacts/log/**/*
+          if-no-files-found: error
+      - name: Upload Nuget Packages
+        uses: actions/upload-artifact@v3
+        with:
+          name: packages
+          path: |
+            ./artifacts/packages/**/*
+          if-no-files-found: error
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Download release artifacts from build
+        uses: actions/download-artifact@v3
+        with:
+          name: packages
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v2
+      - name: Publish
+        run: dotnet nuget push "*.nupkg" --api-key ${{ secrets.NUGET_PUBLISH_KEY_GITHUB }} --source https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json

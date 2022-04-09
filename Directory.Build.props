@@ -3,7 +3,7 @@
 
   <Sdk Name="DotNet.ReproducibleBuilds.Isolated" Version="1.1.1" />
   <!-- Import our custom build layout -->
-  <Import Project="eng\Settings.props" />
+  <Import Project="infra\Settings.props" />
 
   <!-- SDK settings -->
   <PropertyGroup>
@@ -18,16 +18,53 @@
     <RestoreUseStaticGraphEvaluation>true</RestoreUseStaticGraphEvaluation> <!-- Enable faster restore times -->
   </PropertyGroup>
   
+  <!-- MSBuild settings -->
+  <PropertyGroup>
+    <!-- https://github.com/dotnet/msbuild/blob/main/documentation/ProjectReference-Protocol.md#setplatform-negotiation -->
+    <EnableDynamicPlatformResolution>true</EnableDynamicPlatformResolution>
+  </PropertyGroup>
+
+  <!-- Signing settings -->
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)\infra\strongname.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+
   <!-- Compiler settings -->
   <PropertyGroup>
     <AnalysisLevel>latest</AnalysisLevel> <!-- Opt into more advanced analysis -->
     <LangVersion>latest</LangVersion> <!-- Ensure all projects use the latest language version -->
     <Nullable>enable</Nullable> <!-- Turn on nullable-reference-type analysis -->
+    <ImplicitUsings>enable</ImplicitUsings>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <ProduceReferenceAssembly>true</ProduceReferenceAssembly>
   </PropertyGroup>
 
   <ItemGroup>
     <!-- Use reproduceable builds feature -->
     <PackageReference Include="DotNet.ReproducibleBuilds" PrivateAssets="All"/>
+    <!-- Use package versioning -->
+    <PackageReference Include="Nerdbank.GitVersioning" PrivateAssets="All" />
   </ItemGroup>
+
+  <!-- Reproducible Builds  settings -->
+  <PropertyGroup>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources >
+  </PropertyGroup>
+
+  <!-- Versioning settings -->
+  <PropertyGroup>
+    <!-- This entire repo has just one version.json file, so compute the version once and share with all projects in a large build. -->
+    <GitVersionBaseDirectory>$(MSBuildThisFileDirectory)</GitVersionBaseDirectory>
+    <PublicRelease>false</PublicRelease>
+  </PropertyGroup>
+  <Target Name="PrepareReleaseNotes" BeforeTargets="GenerateNuspec" DependsOnTargets="GetBuildVersion">
+    <PropertyGroup>
+      <PackageReleaseNotes>https://github.com/jmarolf/move-project/releases/tag/v$(Version)</PackageReleaseNotes>
+    </PropertyGroup>
+  </Target>
+
 
 </Project>

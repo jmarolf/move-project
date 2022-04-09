@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <ToolCommandName>move-project</ToolCommandName>
+    <PackAsTool>True</PackAsTool>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net6.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.CommandLine" />
+    <PackageReference Include="Spectre.Console" />
+  </ItemGroup>
+
+  <PropertyGroup>
+   <PackageId>move-project</PackageId>
+   <PackageVersion>$(NuGetPackageVersion)</PackageVersion>
+   <Authors>Jonathon Marolf</Authors>
+   <Description>dotnet tool to move project files an update their reference paths</Description>
+   <Copyright>© Jonathon Marolf. All rights reserved.</Copyright>
+   <PackageProjectUrl>https://github.com/jmarolf/move-project</PackageProjectUrl>
+   <PackageReadmeFile>README.md</PackageReadmeFile>
+   <RepositoryUrl>https://github.com/jmarolf/move-project</RepositoryUrl>
+   <RespositoryType>git</RespositoryType>
+   <PackageTags>tool, global-tool, move, project</PackageTags>
+   <PackageLicenseExpression>MIT</PackageLicenseExpression>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="..\README.md" Pack="true" PackagePath="\"/>
+  </ItemGroup>
+
+</Project>

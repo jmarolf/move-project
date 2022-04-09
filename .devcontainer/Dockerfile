@@ -1,12 +1,7 @@
-# See here for image contents: https://github.com/microsoft/vscode-dev-containers/tree/v0.192.0/containers/dotnet/.devcontainer/base.Dockerfile
-
-# [Choice] .NET version: 6.0, 5.0, 3.1, 2.1
 ARG VARIANT="6.0"
 FROM mcr.microsoft.com/vscode/devcontainers/dotnet:0-${VARIANT}
 
-# Set up machine requirements to build the repo
-RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
-    && apt-get -y install --no-install-recommends cmake llvm-9 clang-9 \
-        build-essential python curl git lldb-6.0 liblldb-6.0-dev \
-        libunwind8 libunwind8-dev gettext libicu-dev liblttng-ust-dev \
-        libssl-dev libnuma-dev libkrb5-dev zlib1g-dev ninja-build
+# Clear the NUGET_XMLDOC_MODE env var so xml api doc files get unpacked, allowing a rich experience in Intellisense.
+# See https://github.com/dotnet/dotnet-docker/issues/2790 for a discussion on this, where the prioritized use case
+# was *not* devcontainers, sadly.
+ENV NUGET_XMLDOC_MODE=

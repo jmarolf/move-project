@@ -36,8 +36,10 @@
       "omnisharp.enableAsyncCompletion": true,
     },
     "extensions": [
-      "ms-dotnettools.csharp",
       "EditorConfig.EditorConfig",
+      "formulahendry.dotnet-test-explorer",
+      "ms-dotnettools.csharp",
+      "pflannery.vscode-versionlens",
       "tintoy.msbuild-project-tools"
     ],
     "postCreateCommand": "${containerWorkspaceFolder}/restore.sh"
