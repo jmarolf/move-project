@@ -6,7 +6,7 @@
     <PackageVersion Include="Nerdbank.GitVersioning" Version="3.5.86-alpha" />
   </ItemGroup>
   <ItemGroup Label="Project Dependency Versions">
-    <PackageVersion Include="Spectre.Console" Version="0.44.1-preview.0.4" />
+    <PackageVersion Include="Spectre.Console" Version="0.45.0" />
     <PackageVersion Include="System.CommandLine" Version="2.0.0-beta3.22114.1" />
   </ItemGroup>
   <ItemGroup Label="Test Dependency Versions">
